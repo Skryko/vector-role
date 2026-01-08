@@ -1,0 +1,5 @@
+---
+vector_deps_debian:
+  - wget
+  - tar
+  - gzip

@@ -1,0 +1,13 @@
+---
+vector_version: "0.48.0"
+
+vector_install_dir: "/opt/vector-{{ vector_version }}"
+vector_config_dir: "/etc/vector"
+vector_data_dir: "/var/lib/vector"
+
+vector_config_path: "{{ vector_config_dir }}/vector.toml"
+vector_download_url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-x86_64-unknown-linux-gnu.tar.gz"
+
+vector_user: "vector"
+vector_group: "vector"
+vector_binary_path: "/usr/local/bin/vector"
