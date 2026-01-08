@@ -1,38 +1,141 @@
-Role Name
-=========
+# Ansible Role: Vector
 
-A brief description of the role goes here.
+Роль Ansible для установки и настройки **Vector** — универсального агента сбора и обработки логов и метрик.
 
-Requirements
-------------
+Роль устанавливает бинарный файл Vector, настраивает systemd-сервис, конфигурационный файл и необходимые директории.
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+---
 
-Role Variables
---------------
+## Требования
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+- Ansible >= 2.9
+- ОС семейства Debian (Ubuntu)
+- systemd на целевом хосте
+- Доступ в интернет для загрузки бинарного архива Vector
 
-Dependencies
-------------
+---
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+## Переменные роли
 
-Example Playbook
-----------------
+Все переопределяемые переменные находятся в `defaults/main.yml`.
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+### Основные параметры
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+| Переменная | Значение по умолчанию | Описание |
+|-----------|----------------------|----------|
+| `vector_version` | `"0.48.0"` | Версия Vector |
+| `vector_install_dir` | `/opt/vector-{{ vector_version }}` | Каталог распаковки Vector |
+| `vector_binary_path` | `/usr/local/bin/vector` | Путь установки бинарного файла |
+| `vector_config_dir` | `/etc/vector` | Каталог конфигурации |
+| `vector_data_dir` | `/var/lib/vector` | Каталог данных Vector |
+| `vector_config_path` | `/etc/vector/vector.toml` | Путь к конфигурационному файлу |
+| `vector_download_url` | URL packages.timber.io | URL загрузки архива Vector |
 
-License
--------
+### Пользователь и группа
 
-BSD
+| Переменная | Значение | Описание |
+|-----------|---------|----------|
+| `vector_user` | `vector` | Системный пользователь |
+| `vector_group` | `vector` | Системная группа |
 
-Author Information
-------------------
+---
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+## Что делает роль
+
+- Устанавливает зависимости (`wget`, `tar`, `gzip`)
+- Загружает архив Vector
+- Распаковывает бинарный файл
+- Создаёт пользователя и группу `vector`
+- Создаёт необходимые каталоги
+- Разворачивает конфигурацию `vector.toml`
+- Создаёт и включает systemd-сервис
+- Перезапускает сервис при изменении конфигурации
+
+---
+
+## Пример использования
+
+```yaml
+- hosts: vector
+  become: true
+  roles:
+    - role: vector-role
+
+vector_version: "0.47.0"
+vector_data_dir: "/data/vector"
+
+Обработчики (Handlers)
+
+restart vector — перезапуск сервиса Vector при изменении конфигурации или unit-файла.
+
+
+---
+
+# README.md для `lighthouse-role`
+
+```md
+# Ansible Role: Lighthouse
+
+Роль Ansible для установки **Lighthouse** — web-интерфейса для просмотра данных ClickHouse — и настройки Nginx для его публикации.
+
+---
+
+## Требования
+
+- Ansible >= 2.9
+- ОС семейства Debian (Ubuntu)
+- Установленный systemd
+- Доступ в интернет для загрузки Lighthouse
+
+---
+
+## Переменные роли
+
+Все переопределяемые переменные находятся в `defaults/main.yml`.
+
+### Основные параметры
+
+| Переменная | Значение по умолчанию | Описание |
+|-----------|----------------------|----------|
+| `lighthouse_dir` | `/var/www/lighthouse` | Каталог размещения Lighthouse |
+| `lighthouse_download_url` | GitHub master.zip | URL архива Lighthouse |
+| `lighthouse_zip_path` | `/tmp/lighthouse.zip` | Временный путь архива |
+
+### Настройки Nginx
+
+| Переменная | Значение | Описание |
+|-----------|---------|----------|
+| `lighthouse_nginx_site_name` | `lighthouse` | Имя сайта в Nginx |
+| `lighthouse_nginx_listen_port` | `80` | Порт прослушивания |
+
+---
+
+## Что делает роль
+
+- Устанавливает Nginx и вспомогательные пакеты
+- Загружает и распаковывает Lighthouse
+- Настраивает каталог размещения
+- Создаёт конфигурацию Nginx через шаблон
+- Активирует сайт Lighthouse
+- Отключает сайт Nginx по умолчанию
+- Запускает и включает Nginx
+- Перезапускает Nginx при изменении конфигурации
+
+---
+
+## Пример использования
+
+```yaml
+- hosts: lighthouse
+  become: true
+  roles:
+    - role: lighthouse-role
+
+lighthouse_dir: /opt/lighthouse
+lighthouse_nginx_listen_port: 8080
+
+Обработчики (Handlers)
+
+restart nginx — перезапуск сервиса Nginx при изменении конфигурации сайта.
+
+
