@@ -138,4 +138,6 @@ lighthouse_nginx_listen_port: 8080
 
 restart nginx — перезапуск сервиса Nginx при изменении конфигурации сайта.
 
+Лицензия
 
+MIT
